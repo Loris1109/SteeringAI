@@ -73,14 +73,14 @@ public class MyAi extends AI {
 
     @Override
     public PlayerAction update() {
-        float power = 0;
-        float angularAcceleration = 0;
         Path2D obstacle = null;
         predictionPointCenter = PredictionAhead(0, 25f); //center
         predictionPointLeft = PredictionAhead((float) Math.toRadians(30f), 25f); //left
         predictionPointRight = PredictionAhead((float) Math.toRadians(-30f), 25f); //right
 
         for (Path2D obs : obstacles) {
+
+
             if (!obs.contains(predictionPointCenter[0], predictionPointCenter[1]) && !obs.contains(predictionPointRight[0], predictionPointRight[1]) && !obs.contains(predictionPointLeft[0], predictionPointLeft[1])) {
                 avoiding = false;
             } else {
@@ -90,9 +90,17 @@ public class MyAi extends AI {
             }
 
         }
+
+        float[] steering = Steering(obstacle);
+        return new DivingAction(steering[0], steering[1]);
+    }
+
+    private float[] Steering(Path2D obstacle){
+        float[] steering = new float[]{0,0}; //[0] = power [1] = angularAcceleration
+
         if(!avoiding){
             if (allTargets.isEmpty())
-                return new DivingAction(0, 0);
+                return steering;
             if (info.getScore() > currentScore) {
                 if(target[0] < info.getX()+10 && target[0] > info.getX()-10)
                 {
@@ -119,41 +127,38 @@ public class MyAi extends AI {
 
             }
 
-            power = 10f;//Arrive(target, 1.0f, 5.0f, 0.1f);
-            angularAcceleration = Align(target, 3f);
+            steering[0] = 10f;//Arrive(target, 1.0f, 5.0f, 0.1f);
+            steering[1] = Align(target, 3f);
         }
         else
         {
 
             if(target[0] < info.getX()+30 && target[0] > info.getX()-30 && target[1] < info.getY()+30 && target[1] > info.getY()-10)
             {
-                power = 10f;
-                angularAcceleration = Align(target, 3f);
+                steering[0] = 10f;
+                steering[1] = Align(target, 3f);
             }
             else
             {
                 if (obstacle.contains(predictionPointCenter[0], predictionPointCenter[1])) {
                     avoidTargetCenter = AvoidObstacles(predictionPointCenter);
-                    power = 10f;//(float) Math.sqrt(avoidanceForce[0]*avoidanceForce[0] + avoidanceForce[1]*avoidanceForce[1]);
-                    angularAcceleration = Align(avoidTargetCenter, 3f);
+                    steering[0] = 10f;//(float) Math.sqrt(avoidanceForce[0]*avoidanceForce[0] + avoidanceForce[1]*avoidanceForce[1]);
+                    steering[1] = Align(avoidTargetCenter, 3f);
                 }
                 if (obstacle.contains(predictionPointRight[0], predictionPointRight[1])) {
                     avoidTargetRight = AvoidObstacles(predictionPointRight);
-                    power = 10f;//(float) Math.sqrt(avoidanceForce[0]*avoidanceForce[0] + avoidanceForce[1]*avoidanceForce[1]);
-                    angularAcceleration = Align(avoidTargetRight, 3f);
+                    steering[0] = 10f;//(float) Math.sqrt(avoidanceForce[0]*avoidanceForce[0] + avoidanceForce[1]*avoidanceForce[1]);
+                    steering[1] = Align(avoidTargetRight, 3f);
                 }
                 if (obstacle.contains(predictionPointLeft[0], predictionPointLeft[1])) {
                     avoidTargetLeft = AvoidObstacles(predictionPointLeft);
-                    power = 10f;//(float) Math.sqrt(avoidanceForce[0]*avoidanceForce[0] + avoidanceForce[1]*avoidanceForce[1]);
-                    angularAcceleration = Align(avoidTargetLeft, 3f);
+                    steering[0] = 10f;//(float) Math.sqrt(avoidanceForce[0]*avoidanceForce[0] + avoidanceForce[1]*avoidanceForce[1]);
+                    steering[1] = Align(avoidTargetLeft, 3f);
                 }
             }
 
         }
-
-
-
-        return new DivingAction(power, angularAcceleration);
+        return steering;
     }
 
     private float distanceTo(float[] target) {
