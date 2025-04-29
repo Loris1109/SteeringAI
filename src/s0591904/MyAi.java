@@ -34,8 +34,8 @@ public class MyAi extends AI {
 
     int currentTargetIndex = 0;
     int currentScore = 0;
-    private final float maxAngularVelocity = (float) Math.toRadians(10f);
-    private final float maxAngularAcceleration = (float) Math.toRadians(5f);
+    private final float maxAngularVelocity = info.getMaxAbsoluteAngularVelocity();//(float) Math.toRadians(10f);
+    private final float maxAngularAcceleration = info.getMaxAbsoluteAngularAcceleration();//(float) Math.toRadians(5f);
 
 
 
@@ -124,21 +124,31 @@ public class MyAi extends AI {
         }
         else
         {
-            if (obstacle.contains(predictionPointCenter[0], predictionPointCenter[1])) {
-                avoidTargetCenter = AvoidObstacles(predictionPointCenter);
-                power = 10f;//(float) Math.sqrt(avoidanceForce[0]*avoidanceForce[0] + avoidanceForce[1]*avoidanceForce[1]);
-                angularAcceleration = Align(avoidTargetCenter, 3f);
+
+            if(target[0] < info.getX()+30 && target[0] > info.getX()-30 && target[1] < info.getY()+30 && target[1] > info.getY()-10)
+            {
+                power = 10f;
+                angularAcceleration = Align(target, 3f);
             }
-            if (obstacle.contains(predictionPointRight[0], predictionPointRight[1])) {
-                avoidTargetRight = AvoidObstacles(predictionPointRight);
-                power = 10f;//(float) Math.sqrt(avoidanceForce[0]*avoidanceForce[0] + avoidanceForce[1]*avoidanceForce[1]);
-                angularAcceleration = Align(avoidTargetRight, 3f);
+            else
+            {
+                if (obstacle.contains(predictionPointCenter[0], predictionPointCenter[1])) {
+                    avoidTargetCenter = AvoidObstacles(predictionPointCenter);
+                    power = 10f;//(float) Math.sqrt(avoidanceForce[0]*avoidanceForce[0] + avoidanceForce[1]*avoidanceForce[1]);
+                    angularAcceleration = Align(avoidTargetCenter, 3f);
+                }
+                if (obstacle.contains(predictionPointRight[0], predictionPointRight[1])) {
+                    avoidTargetRight = AvoidObstacles(predictionPointRight);
+                    power = 10f;//(float) Math.sqrt(avoidanceForce[0]*avoidanceForce[0] + avoidanceForce[1]*avoidanceForce[1]);
+                    angularAcceleration = Align(avoidTargetRight, 3f);
+                }
+                if (obstacle.contains(predictionPointLeft[0], predictionPointLeft[1])) {
+                    avoidTargetLeft = AvoidObstacles(predictionPointLeft);
+                    power = 10f;//(float) Math.sqrt(avoidanceForce[0]*avoidanceForce[0] + avoidanceForce[1]*avoidanceForce[1]);
+                    angularAcceleration = Align(avoidTargetLeft, 3f);
+                }
             }
-            if (obstacle.contains(predictionPointLeft[0], predictionPointLeft[1])) {
-                avoidTargetLeft = AvoidObstacles(predictionPointLeft);
-                power = 10f;//(float) Math.sqrt(avoidanceForce[0]*avoidanceForce[0] + avoidanceForce[1]*avoidanceForce[1]);
-                angularAcceleration = Align(avoidTargetLeft, 3f);
-            }
+
         }
 
 
@@ -170,10 +180,9 @@ public class MyAi extends AI {
                 info.getX() - predictionPoint[0],
                 info.getY() - predictionPoint[1]
         };
-        float multiplier = 50f; // Wie weit soll der Schwimmer ausweichen
         float[] counterTarget = new float[]{
-                info.getX() + avoidDirection[0] * multiplier,
-                info.getY() + avoidDirection[1] * multiplier
+                info.getX() + avoidDirection[0],
+                info.getY() + avoidDirection[1]
         };
 
         return counterTarget;
@@ -294,33 +303,41 @@ public class MyAi extends AI {
             gfx.drawString(Arrays.toString(target), target[0], target[1]);
         }
 
-        if(predictionPointCenter != null)
+        float dx = target[0] - info.getX();
+        float dy = target[1] - info.getY();
+        float distance = (float) Math.sqrt(dx*dx + dy*dy);
+
+        if(distance>30f)
         {
-            gfx.setColor(Color.MAGENTA);
-            gfx.drawOval((int) predictionPointCenter[0], (int) predictionPointCenter[1],1,1);
+            if(predictionPointCenter != null)
+            {
+                gfx.setColor(Color.MAGENTA);
+                gfx.drawOval((int) predictionPointCenter[0], (int) predictionPointCenter[1],1,1);
 
 //            if(avoidTargetCenter != null){
 //                gfx.setColor(Color.YELLOW);
 //                gfx.drawLine((int) predictionPointCenter[0], (int) predictionPointCenter[1], (int) avoidTargetCenter[0], (int) avoidTargetCenter[1]);
 //            }
-        }
-        if(predictionPointLeft != null)
-        {
-            gfx.setColor(Color.LIGHT_GRAY);
-            gfx.drawOval((int) predictionPointLeft[0], (int) predictionPointLeft[1],1,1);
+            }
+            if(predictionPointLeft != null)
+            {
+                gfx.setColor(Color.LIGHT_GRAY);
+                gfx.drawOval((int) predictionPointLeft[0], (int) predictionPointLeft[1],1,1);
 //            if(avoidTargetLeft != null){
 //                gfx.setColor(Color.YELLOW);
 //                gfx.drawLine((int) predictionPointLeft[0], (int) predictionPointLeft[1], (int) avoidTargetLeft[0], (int) avoidTargetLeft[1]);
 //            }
-        }
-        if(predictionPointRight != null)
-        {
-            gfx.setColor(Color.CYAN);
-            gfx.drawOval((int) predictionPointRight[0], (int) predictionPointRight[1],1,1);
+            }
+            if(predictionPointRight != null)
+            {
+                gfx.setColor(Color.CYAN);
+                gfx.drawOval((int) predictionPointRight[0], (int) predictionPointRight[1],1,1);
 //            if(avoidTargetRight != null){
 //                gfx.setColor(Color.YELLOW);
 //                gfx.drawLine((int) predictionPointRight[0], (int) predictionPointRight[1], (int) avoidTargetRight[0], (int) avoidTargetRight[1]);
 //            }
+            }
         }
+
     }
 }

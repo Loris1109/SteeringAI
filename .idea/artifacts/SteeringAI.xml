@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="SteeringAI">
+    <output-path>$PROJECT_DIR$/out/artifacts/SteeringAI</output-path>
+    <root id="archive" name="SteeringAI.jar">
+      <element id="module-output" name="Ai4g" />
+      <element id="library" level="project" name="ai" />
+    </root>
+  </artifact>
+</component>
